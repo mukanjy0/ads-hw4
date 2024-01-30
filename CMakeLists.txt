@@ -3,4 +3,5 @@ project(ads_hw4)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(ads_hw4 main.cpp)
+add_executable(ads_hw4 main.cpp
+        disjoint_set.h)
