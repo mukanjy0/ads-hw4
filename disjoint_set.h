@@ -11,7 +11,7 @@
 template<typename T>
 class DisjointSet {
 public:
- virtual ~DisjointSet();
+ virtual ~DisjointSet(){}
  virtual void MakeSet(T x) = 0;
  virtual T Find(T x) = 0;
  virtual void Union(T x, T y) = 0;
@@ -59,12 +59,11 @@ public:
             int* newDs = new int[capacity<<=1];
             for (int i = 0; i < sz; ++i)
                 newDs[i] = ds[i];
-            newDs[sz] = -1;
 
             delete[] ds;
             ds = newDs;
         }
-        ++sz;
+        ds[sz++] = -1;
     }
     T Find(T a) {
         if (key.count(a) == 0)
