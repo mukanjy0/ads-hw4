@@ -6,6 +6,7 @@
 #define ADS_HW4_DISJOINT_SET_H
 
 #include <unordered_map>
+#include <vector>
 #include <stdexcept>
 
 template<typename T>
@@ -79,6 +80,87 @@ public:
     }
     bool isConnected(T a, T b) {
         return Find(a) == Find(b);
+    }
+};
+
+template<typename T>
+class DisjointSetTree : public DisjointSet<T> {
+private:
+    struct Node {
+        T value;
+        Node* parent;
+        int rank;
+        Node(T v): value(v), parent(this), rank(0) {}
+    };
+    std::unordered_map<T, Node*> _elements;
+public:
+    DisjointSetTree()=default;
+    ~DisjointSetTree(){
+        for (auto& iter: _elements) {
+            delete iter.second;
+        }
+    }
+    void MakeSet(T x) override {
+        if (_elements[x]) {
+            return;
+        }
+        auto* node = new Node(x);
+        _elements[x] = node;
+    }
+    T Find(T x) override {
+        if (!_elements[x]) {
+            throw std::runtime_error("Element not in DisjoinSet");
+        }
+        if (_elements[x]->parent == _elements[x]){
+            return x;
+        }
+        else {
+            return Find(_elements[x]->parent->value);
+        }
+    }
+    void Union(T x, T y) override {
+        if (!_elements[x] || !_elements[y]) {
+            throw std::runtime_error("Element not in DisjoinSet");
+        }
+        auto xroot = Find(x);
+        auto yroot = Find(y);
+        if (_elements[xroot] == _elements[yroot]) {
+            return;
+        }
+        if (_elements[xroot]->rank < _elements[yroot]->rank) {
+            _elements[xroot]->parent = _elements[yroot];
+        }
+        else if (_elements[xroot]->rank > _elements[yroot]->rank) {
+            _elements[yroot]->parent = _elements[xroot];
+        }
+        else {
+            _elements[yroot]->parent = _elements[xroot];
+            _elements[xroot]->rank++;
+        }
+    }
+    bool isConnected(T x, T y) override {
+        if (!_elements[x] || !_elements[y]) {
+            throw std::runtime_error("Element not in DisjoinSet");
+        }
+        auto xroot = Find(x);
+        auto yroot = Find(y);
+        return _elements[xroot] == _elements[yroot];
+    }
+    void printSets() {
+        std::cout << "PRINTING SETS:\n";
+        std::unordered_map<T, std::vector<T>> sets;
+        for (const auto& iter: _elements) {
+            T root = Find(iter.first);
+            sets[root].push_back(iter.first);
+        }
+        for (const auto& iter: sets) {
+            std::cout << "Root: " << iter.first << '\n';
+            std::cout << "Elements: ";
+            for (const auto& iter2: iter.second) {
+                std::cout << iter2 << " ";
+            }
+            std::cout << '\n';
+        }
     }
 };
 
